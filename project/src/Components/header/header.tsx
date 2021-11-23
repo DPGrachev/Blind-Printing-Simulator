@@ -11,9 +11,9 @@ export default function Header () :JSX.Element {
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
         <Nav className="me-auto">
-          <Nav.Link><Link to={AppRoute.Main} className="text-decoration-none text-white fs-4">ГЛАВНАЯ</Link></Nav.Link>
-          <Nav.Link><Link to={AppRoute.Trainer} className="text-decoration-none text-white fs-4">ТРЕНАЖЕР</Link></Nav.Link>
-          <Nav.Link><Link to={AppRoute.Result} className="text-decoration-none text-white fs-4">РЕЗУЛЬТАТЫ</Link></Nav.Link>
+          <Nav.Link as={Link} to={AppRoute.Main} className="text-decoration-none text-white fs-4">ГЛАВНАЯ</Nav.Link>
+          <Nav.Link as={Link} to={AppRoute.Trainer} className="text-decoration-none text-white fs-4">ТРЕНАЖЕР</Nav.Link>
+          <Nav.Link as={Link} to={AppRoute.Result} className="text-decoration-none text-white fs-4">РЕЗУЛЬТАТЫ</Nav.Link>
         </Nav>
       </Navbar.Collapse>
       </Container>
