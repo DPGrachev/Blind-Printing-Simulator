@@ -7,7 +7,7 @@ export default function Header () :JSX.Element {
     <>
     <Container className='p-0'>
       <Navbar collapseOnSelect expand="lg" bg="success" variant="dark" className='rounded header'>
-        <Navbar.Brand href="#home" >React-Bootstrap</Navbar.Brand>
+        <Navbar.Brand>BPS</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="mx-auto">
