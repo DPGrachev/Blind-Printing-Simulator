@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { Container, Row, Col, Badge} from 'react-bootstrap';
+import { Container, Row, Col, Button} from 'react-bootstrap';
 import { useDispatch } from "react-redux";
-import { AppRoute } from "../../const";
 import {useKeydownEvent} from "../../hooks/useEvent";
 import { useInterval } from "../../hooks/useInterval";
 import { setResults } from "../../Store/actions";
@@ -10,18 +9,7 @@ import WinnerScreen from "../winner-screen/winner-screen";
 
 export default function TrainerScreen (): JSX.Element {
 
-  const textForTest = 'Привет!';
-
-  // const completeTrain = () => {
-  //   dispatch(setResults({
-  //     passedTime: passedTime,
-  //     accuracy: accuracy,
-  //     speedPrint: speedPrint,
-  //   }));
-  //   setIsCompleted(true);
-  // }
-
-  // const [textForTest, setTextForTest] = useState('');
+  const [textForTest, setTextForTest] = useState('');
   const [speedPrint, setSpeedPrint] = useState(0);
   const [enteredLettersCount, setEnteredLettersCount] = useState(0);
   const [passedTime, setPassedTime] = useState(1);
@@ -30,19 +18,12 @@ export default function TrainerScreen (): JSX.Element {
   const [textForUser, setTextForUser] = useState(textForTest);
   const [accuracy, setAccuracy] = useState(100);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isRestart, setIsRestart] = useState(false)
   const dispatch = useDispatch();
 
   if(!isCompleted && enteredLettersCount && enteredLettersCount === textForTest.length){
     setIsCompleted(true);
   }
-
-  // if(isCompleted){
-  //   dispatch(setResults({
-  //     passedTime: passedTime,
-  //     accuracy: accuracy,
-  //     speedPrint: speedPrint,
-  //   }))
-  // }
 
   const markedLetter = useCallback(
     (index: number, color: string) => {
@@ -52,6 +33,18 @@ export default function TrainerScreen (): JSX.Element {
     },
     [textForTest],
   );
+
+  const onRestartButtonClick = () => {
+    setTextForTest('');
+    setSpeedPrint(0);
+    setEnteredLettersCount(0);
+    setPassedTime(1);
+    setCurrentLetterIndex(0);
+    setTextForUser('');
+    setAccuracy(100);
+    setIsCompleted(false);
+    setIsRestart(true);
+  }
 
   const checkedValid = (evt: KeyboardEvent) => {
     if(evt.key.length === 1 && evt.key === textForTest[currentLetterIndex]){
@@ -90,21 +83,24 @@ export default function TrainerScreen (): JSX.Element {
     
   },[markedLetter])
   
-  // useEffect(()=> {
-  //   fetch(`https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=${Math.floor(Math.random() * 50)}`)
-  //     .then((response) => response.json())
-  //     .then((response) => {
-  //       setTextForTest(response[0]);
-  //       setTextForUser(response[0]);
-  //     });
-  // },[])
+  useEffect(()=> {
+    if(!textForTest.length || isRestart){
+      fetch(`https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=${Math.floor(Math.random() * 50)}`)
+      .then((response) => response.json())
+      .then((response) => {
+        setTextForTest(response[0]);
+        setTextForUser(response[0]);
+      });
+      setIsRestart(false);
+    }
+  },[isRestart, textForTest])
 
   useKeydownEvent('keydown', checkedValid)
 
   return (
     <div>
       {isCompleted &&
-        <WinnerScreen passedTime={passedTime} accuracy={accuracy} speedPrint={speedPrint} />
+        <WinnerScreen passedTime={passedTime} accuracy={accuracy} speedPrint={speedPrint} onRestartButtonClick={onRestartButtonClick}/>
       }
       
       {!textForTest && !isCompleted
@@ -126,7 +122,7 @@ export default function TrainerScreen (): JSX.Element {
                   <div >
                     <p className="fs-5 mb-0">точность</p>
                     <p className="fs-1">{accuracy} %</p>
-                    <Badge bg="success"><a href={AppRoute.Trainer} className="text-decoration-none text-white">начать заново </a></Badge>
+                    <Button variant="success" onClick={onRestartButtonClick} size="sm" className=""> начать заново</Button>
                   </div>
                 </Col>
               </Row>

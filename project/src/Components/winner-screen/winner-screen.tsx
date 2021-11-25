@@ -1,13 +1,13 @@
-import { Container, Row, Col, Badge} from 'react-bootstrap';
-import { AppRoute } from "../../const";
+import { Container, Row, Col, Button} from 'react-bootstrap';
 
 type WinnerScreenProps = {
   passedTime: number,
   accuracy: number,
   speedPrint: number,
+  onRestartButtonClick: () => void;
 }
 
-export default function WinnerScreen ({passedTime, accuracy, speedPrint}: WinnerScreenProps): JSX.Element {
+export default function WinnerScreen ({passedTime, accuracy, speedPrint, onRestartButtonClick}: WinnerScreenProps): JSX.Element {
   return (
     <Container className='border border-succes bg-white p-3 content-area text-center text-success'>
       <h1>Поздравляем, вы справились!!!</h1>
@@ -28,7 +28,7 @@ export default function WinnerScreen ({passedTime, accuracy, speedPrint}: Winner
           </Col>
         </Row>
       </div>
-      <Badge bg="success p-2"><a href={AppRoute.Trainer} className="text-decoration-none text-white fs-2">НАЧАТЬ ЗАНОВО </a></Badge>
+      <Button variant="success" onClick={onRestartButtonClick} size="sm" className=""> начать заново</Button>
     </Container>
   )
 }
