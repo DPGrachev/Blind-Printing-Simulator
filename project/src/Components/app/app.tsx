@@ -8,14 +8,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App(): JSX.Element {
   return (
-    <Router>
-      <Header/>
-      <Routes>
-        <Route path={AppRoute.Main} element={<MainScreen/>}/>
-        <Route path={AppRoute.Trainer} element={<TrainerScreen/>}></Route>
-        <Route path={AppRoute.Result} element={<ResultScreen/>}></Route>
-      </Routes>
-    </Router>
+      <Router>
+        <Header/>
+        <Routes>
+          <Route path={AppRoute.Main} element={<MainScreen/>}/>
+          <Route path={AppRoute.Trainer} element={<TrainerScreen/>}></Route>
+          <Route path={AppRoute.Result} element={<ResultScreen/>}></Route>
+        </Routes>
+      </Router>
   );
 }
 

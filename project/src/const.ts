@@ -3,3 +3,7 @@ export const enum AppRoute {
   Trainer = '/trainer',
   Result = '/result',
 }
+
+export const enum ActionType {
+  SetResults = 'set-results',
+}

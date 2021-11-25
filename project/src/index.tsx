@@ -3,9 +3,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import App from './Components/app/app';
+import { reducer } from './Store/reducer';
+import './style.css';
 
 const store = configureStore({
-  reducer: {},
+  reducer: reducer,
 });
 
 ReactDOM.render(

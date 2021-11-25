@@ -1,69 +1,137 @@
-import { useState, useEffect } from "react";
-import { Container} from 'react-bootstrap';
-import useKeydownEvent from "../../hooks/useEvent";
+import { useState, useEffect, useCallback } from "react";
+import { Container, Row, Col, Badge} from 'react-bootstrap';
+import { useDispatch } from "react-redux";
+import { AppRoute } from "../../const";
+import {useKeydownEvent} from "../../hooks/useEvent";
 import { useInterval } from "../../hooks/useInterval";
+import { setResults } from "../../Store/actions";
+import Loading from "../loading/loading";
+import WinnerScreen from "../winner-screen/winner-screen";
 
 export default function TrainerScreen (): JSX.Element {
-  const textForTest = 'Привет! Это тестовый текст для тренеровки печати';
-  const oneSymbolWeight = textForTest.length / 100;
 
+  const textForTest = 'Привет!';
+
+  // const completeTrain = () => {
+  //   dispatch(setResults({
+  //     passedTime: passedTime,
+  //     accuracy: accuracy,
+  //     speedPrint: speedPrint,
+  //   }));
+  //   setIsCompleted(true);
+  // }
+
+  // const [textForTest, setTextForTest] = useState('');
   const [speedPrint, setSpeedPrint] = useState(0);
   const [enteredLettersCount, setEnteredLettersCount] = useState(0);
   const [passedTime, setPassedTime] = useState(1);
   const [isSameMistake, setIsSameMistake] = useState(false);
-  const [currentLetterIndex, setCurrentLetterIndex] = useState(0)
-  const [text, setText] = useState(textForTest)
-  const [accuracy, setAccuracy] = useState(100)
+  const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
+  const [textForUser, setTextForUser] = useState(textForTest);
+  const [accuracy, setAccuracy] = useState(100);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const dispatch = useDispatch();
+
+  if(!isCompleted && enteredLettersCount && enteredLettersCount === textForTest.length){
+    setIsCompleted(true);
+  }
+
+  // if(isCompleted){
+  //   dispatch(setResults({
+  //     passedTime: passedTime,
+  //     accuracy: accuracy,
+  //     speedPrint: speedPrint,
+  //   }))
+  // }
+
+  const markedLetter = useCallback(
+    (index: number, color: string) => {
+      const arr = textForTest.split('');
+      arr[index] = `<span style="color: white; background: ${color}">${textForTest[index]}</span>`;
+      setTextForUser(arr.join(''));
+    },
+    [textForTest],
+  );
 
   const checkedValid = (evt: KeyboardEvent) => {
     if(evt.key.length === 1 && evt.key === textForTest[currentLetterIndex]){
       if(isSameMistake){setIsSameMistake(false)}
-      setCurrentLetterIndex(currentLetterIndex + 1);
-      setEnteredLettersCount(enteredLettersCount + 1);
-      
+
+      setCurrentLetterIndex((currentLetterIndex) => currentLetterIndex + 1);
+      setEnteredLettersCount((enteredLettersCount) => enteredLettersCount + 1);
       markedLetter(currentLetterIndex + 1, 'green');
+
     }else if(evt.key.length === 1 && !isSameMistake){
       markedLetter(currentLetterIndex, 'red');
-      const newAccuracy = accuracy - oneSymbolWeight;
-      setAccuracy(Number(newAccuracy.toFixed(1)));
+      const newAccuracy = accuracy - (100 / textForTest.length);
+      setAccuracy(Math.floor(10 * newAccuracy)/10);
       setIsSameMistake(true);
     }
   }
   useInterval(() => {
-    if(enteredLettersCount){
-      console.log(passedTime)
+    if(enteredLettersCount && !isCompleted){
       setPassedTime(passedTime + 1);
       setSpeedPrint(enteredLettersCount * 60 / passedTime);
     }
   }, 1000)
 
-  
+  useEffect(() => {
+    if(isCompleted){
+      dispatch(setResults({
+        passedTime: passedTime,
+        accuracy: accuracy,
+        speedPrint: speedPrint,
+      }));
+    }
+  },[isCompleted, accuracy, dispatch, passedTime, speedPrint])
 
-  const markedLetter = (index: number, color: string) => {
-    const arr = textForTest.split('');
-    arr[index] = `<span style="color: white; background: ${color}">${textForTest[index]}</span>`;
-    setText(arr.join(''));
-  }
-  
-  useEffect(()=> {
+  useEffect(() => {
     markedLetter(0, 'green');
-  },[])
+    
+  },[markedLetter])
+  
+  // useEffect(()=> {
+  //   fetch(`https://baconipsum.com/api/?type=all-meat&sentences=1&start-with-lorem=${Math.floor(Math.random() * 50)}`)
+  //     .then((response) => response.json())
+  //     .then((response) => {
+  //       setTextForTest(response[0]);
+  //       setTextForUser(response[0]);
+  //     });
+  // },[])
 
   useKeydownEvent('keydown', checkedValid)
 
   return (
     <div>
-      <Container>
-        <div className="fs-1 border border-primary rounded w-50">
-          <p id='text' dangerouslySetInnerHTML={{__html: text}}></p>
-        </div>
-        <div>
-          <h1>{accuracy} % Точности</h1>
-        </div>
-        <div>
-          <h1>{Math.floor(speedPrint)} зн./минуту</h1>
-        </div>
-      </Container>
+      {isCompleted &&
+        <WinnerScreen passedTime={passedTime} accuracy={accuracy} speedPrint={speedPrint} />
+      }
+      
+      {!textForTest && !isCompleted
+        && <Loading />
+      }
+      {textForTest && !isCompleted
+        &&  <Container className='border border-succes bg-white p-3 content-area'>
+              <Row>
+                <Col lg="9" md="8">
+                <div className="fs-2 p-2">
+                  <p id='text' dangerouslySetInnerHTML={{__html: textForUser}}></p>
+                </div>
+                </Col>
+                <Col className="text-success">
+                  <div >
+                    <p className="fs-5 mb-0">скорость</p>
+                    <p className="fs-4"><span className="fs-1">{Math.floor(speedPrint)}</span> зн./минуту</p>
+                  </div>
+                  <div >
+                    <p className="fs-5 mb-0">точность</p>
+                    <p className="fs-1">{accuracy} %</p>
+                    <Badge bg="success"><a href={AppRoute.Trainer} className="text-decoration-none text-white">начать заново </a></Badge>
+                  </div>
+                </Col>
+              </Row>
+            </Container>
+      }
     </div>
   )
 }

@@ -1,0 +1,13 @@
+body{
+  background-color: rgb(54, 199, 131);
+  padding-top: 20px;
+}
+
+.header{
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.content-area{
+  border-radius: 20px;
+}

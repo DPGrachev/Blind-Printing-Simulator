@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-export default function useKeydownEvent(event: string, handler: (evt: KeyboardEvent) => void, passive = false) {
+export function useKeydownEvent(event: string, handler: (evt: KeyboardEvent) => void, passive = false) {
   useEffect(() => {
     // initiate the event handler
     window.addEventListener('keydown', handler, passive)
