@@ -1,3 +1,5 @@
+import { AuthStatus } from "../const"
+
 export type ResultTrain = {
   passedTime: number,
   accuracy: number,
@@ -6,4 +8,6 @@ export type ResultTrain = {
 
 export type State = {
   results: ResultTrain[],
+  authStatus: AuthStatus,
+  userName: string,
 }
