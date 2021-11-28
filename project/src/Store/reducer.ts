@@ -1,13 +1,14 @@
 import { createReducer } from "@reduxjs/toolkit"
-import { AuthStatus } from "../const"
+import { AuthStatus, GameMode } from "../const"
 import { State } from "../types/types"
-import { onLogin, onLogout, setResults, setUserName } from "./actions"
+import { onLogin, onLogout, setGameMode, setResults, setUserName } from "./actions"
 
 
 const initialState: State = {
   results: [],
   authStatus: AuthStatus.NoAuth,
   userName: '',
+  gameMode: GameMode.None,
 }
 
 export const reducer = createReducer(initialState,(builder) => {
@@ -23,5 +24,8 @@ export const reducer = createReducer(initialState,(builder) => {
     })
     .addCase(setUserName, (state, action)=>{
       state.userName = action.payload.userName;
+    })
+    .addCase(setGameMode,(state, action)=>{
+      state.gameMode = action.payload.gameMode;
     })
 })

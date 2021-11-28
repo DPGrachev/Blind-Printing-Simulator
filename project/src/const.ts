@@ -10,9 +10,16 @@ export const enum ActionType {
   Authorization = 'user/login',
   UnAuthorization = 'user/logout',
   SetUserName = 'user/set-user-name',
+  SetGameMode = 'game/set-game-mode',
 }
 
 export const enum AuthStatus {
   Auth = 'auth',
   NoAuth = 'noAuth',
+}
+
+export const enum GameMode {
+  None = 'none',
+  Classic = 'classic',
+  Arcade = 'arcade',
 }

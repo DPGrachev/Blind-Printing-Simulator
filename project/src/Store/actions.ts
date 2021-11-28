@@ -1,5 +1,5 @@
 import { createAction } from "@reduxjs/toolkit";
-import { ActionType } from "../const";
+import { ActionType, GameMode } from "../const";
 import { ResultTrain } from "../types/types";
 
 
@@ -21,6 +21,15 @@ export const setUserName = createAction(
   (userName: string) => ({
     payload: {
       userName: userName,
+    },
+  }),
+);
+
+export const setGameMode = createAction(
+  ActionType.SetGameMode,
+  (mode: GameMode) => ({
+    payload: {
+      gameMode: mode,
     },
   }),
 );

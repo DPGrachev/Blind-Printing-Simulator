@@ -1,25 +1,29 @@
 import { useState, useEffect, useCallback } from "react";
-import { Container, Row, Col, Button} from 'react-bootstrap';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {useKeydownEvent} from "../../hooks/useEvent";
-import { useInterval } from "../../hooks/useInterval";
-import { setResults } from "../../Store/actions";
+import { setGameMode} from "../../Store/actions";
 import Loading from "../loading/loading";
-import WinnerScreen from "../winner-screen/winner-screen";
+import ClassicGameScreen from "../classic-game-screen/classic-game-screen";
+import { getGameMode } from "../../Store/selectors";
+import { GameMode } from "../../const";
+import GameModeScreen from "../game-mode-screen/game-mode-screen";
+import ArcadeGameScreen from "../arcade-game-screen/arcade-game-screen";
 
 export default function TrainerScreen (): JSX.Element {
 
   const [textForTest, setTextForTest] = useState('');
-  const [speedPrint, setSpeedPrint] = useState(0);
   const [enteredLettersCount, setEnteredLettersCount] = useState(0);
-  const [passedTime, setPassedTime] = useState(1);
+  const [mistakeCount, setMistakeCount] = useState(0);
   const [isSameMistake, setIsSameMistake] = useState(false);
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [textForUser, setTextForUser] = useState(textForTest);
   const [accuracy, setAccuracy] = useState(100);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isStart, setIsStart] = useState(false);
   const [isRestart, setIsRestart] = useState(false)
   const dispatch = useDispatch();
+
+  const gameMode = useSelector(getGameMode);
 
   if(!isCompleted && enteredLettersCount && enteredLettersCount === textForTest.length){
     setIsCompleted(true);
@@ -36,14 +40,18 @@ export default function TrainerScreen (): JSX.Element {
 
   const onRestartButtonClick = () => {
     setTextForTest('');
-    setSpeedPrint(0);
     setEnteredLettersCount(0);
-    setPassedTime(1);
     setCurrentLetterIndex(0);
+    setMistakeCount(0);
     setTextForUser('');
     setAccuracy(100);
     setIsCompleted(false);
     setIsRestart(true);
+  }
+
+  const onChangeModeButtonClick = () => {
+    onRestartButtonClick();
+    dispatch(setGameMode(GameMode.None));
   }
 
   const checkedValid = (evt: KeyboardEvent) => {
@@ -56,27 +64,27 @@ export default function TrainerScreen (): JSX.Element {
 
     }else if(evt.key.length === 1 && !isSameMistake){
       markedLetter(currentLetterIndex, 'red');
-      const newAccuracy = accuracy - (100 / textForTest.length);
-      setAccuracy(Math.floor(10 * newAccuracy)/10);
       setIsSameMistake(true);
+      if(gameMode === GameMode.Classic){
+        const newAccuracy = accuracy - (100 / textForTest.length);
+        setAccuracy(Math.floor(10 * newAccuracy)/10);
+      }
+      if(gameMode === GameMode.Arcade){
+        setMistakeCount((mistakeCount) => mistakeCount + 1);
+      }
+
     }
   }
-  useInterval(() => {
-    if(enteredLettersCount && !isCompleted){
-      setPassedTime(passedTime + 1);
-      setSpeedPrint(enteredLettersCount * 60 / passedTime);
-    }
-  }, 1000)
+
 
   useEffect(() => {
-    if(isCompleted){
-      dispatch(setResults({
-        passedTime: passedTime,
-        accuracy: accuracy,
-        speedPrint: speedPrint,
-      }));
+    if(enteredLettersCount && !isCompleted){
+      setIsStart(true);
+    }else{
+      setIsStart(false);
     }
-  },[isCompleted, accuracy, dispatch, passedTime, speedPrint])
+  }, [enteredLettersCount, isCompleted])
+
 
   useEffect(() => {
     markedLetter(0, 'green');
@@ -95,38 +103,25 @@ export default function TrainerScreen (): JSX.Element {
     }
   },[isRestart, textForTest])
 
-  useKeydownEvent('keydown', checkedValid)
+  useKeydownEvent('keydown', checkedValid);
+
+  window.addEventListener('beforeunload',onChangeModeButtonClick);
+
+  if(gameMode === GameMode.None){
+    return <GameModeScreen />;
+  }
+
 
   return (
     <div>
-      {isCompleted &&
-        <WinnerScreen passedTime={passedTime} accuracy={accuracy} speedPrint={speedPrint} onRestartButtonClick={onRestartButtonClick}/>
-      }
-      
       {!textForTest && !isCompleted
         && <Loading />
       }
-      {textForTest && !isCompleted
-        &&  <Container className='border border-succes bg-white p-3 content-area'>
-              <Row>
-                <Col lg="9" md="8">
-                <div className="fs-2 p-2">
-                  <p id='text' dangerouslySetInnerHTML={{__html: textForUser}}></p>
-                </div>
-                </Col>
-                <Col className="text-success">
-                  <div >
-                    <p className="fs-5 mb-0">скорость</p>
-                    <p className="fs-4"><span className="fs-1">{Math.floor(speedPrint)}</span> зн./минуту</p>
-                  </div>
-                  <div >
-                    <p className="fs-5 mb-0">точность</p>
-                    <p className="fs-1">{accuracy} %</p>
-                    <Button variant="success" onClick={onRestartButtonClick} size="sm" className=""> начать заново</Button>
-                  </div>
-                </Col>
-              </Row>
-            </Container>
+      {textForTest && gameMode === GameMode.Classic
+        &&  <ClassicGameScreen isCompleted={isCompleted} textForUser={textForUser} isStart={isStart} enteredLettersCount={enteredLettersCount} accuracy={accuracy} onRestartButtonClick={onRestartButtonClick} onChangeModeButtonClick={onChangeModeButtonClick}/>
+      }
+      {textForTest && gameMode === GameMode.Arcade
+        &&  <ArcadeGameScreen isCompleted={isCompleted} textForUser={textForUser} isStart={isStart} mistakeCount={mistakeCount} onRestartButtonClick={onRestartButtonClick} onChangeModeButtonClick={onChangeModeButtonClick}/>
       }
     </div>
   )

@@ -1,4 +1,4 @@
-import { AuthStatus } from "../const"
+import { AuthStatus, GameMode } from "../const"
 
 export type ResultTrain = {
   passedTime: number,
@@ -10,4 +10,5 @@ export type State = {
   results: ResultTrain[],
   authStatus: AuthStatus,
   userName: string,
+  gameMode: GameMode,
 }
