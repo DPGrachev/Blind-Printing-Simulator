@@ -6,6 +6,7 @@ import TrainerScreen from "../trainer-screen/trainer-screen";
 import Header from "../header/header";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AuthScreen from "../auth-screen/auth-screen";
+import NotFoundScreen from "../not-found-screen/not-found-screen";
 // import GameModeScreen from "../game-mode-screen/game-mode-screen";
 
 function App(): JSX.Element {
@@ -19,6 +20,7 @@ function App(): JSX.Element {
             <Route path={AppRoute.Result} element={<ResultScreen/>}></Route>
             <Route path={AppRoute.Auth} element={<AuthScreen/>}></Route>
           </Route>
+          <Route path="*" element={<NotFoundScreen />}/>
         </Routes>
       </Router>
   );
